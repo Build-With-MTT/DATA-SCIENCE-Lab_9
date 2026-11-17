@@ -1,0 +1,31 @@
+LAB 9 NOTES - Muhammad Talal Tariq (235154)
+
+TASK 1 - Housing price near transit (414 rows)
+(a) Slope = -0.73 price units per 100 m. Intercept = 45.85 price units.
+(b) Prediction at 500 m (distance_100m = 5) = 42.22 price units.
+(c) Direction: negative. Houses farther from the nearest metro station have a lower predicted price.
+    Size: every extra 100 m lowers the predicted price per unit area by about 0.73 units.
+    Prices are in units of 10,000 NT$ per ping, so this is about 7,300 NT$ per ping.
+    This is an association from a straight-line fit, not proof that distance alone causes the drop.
+
+TASK 2 - Yacht resistance (308 experiments, 5-fold CV, random_state=42)
+Linear    fold RMSEs: 8.16, 10.57, 9.84, 8.38, 7.78 -> mean 8.95
+Quadratic fold RMSEs: 3.93, 4.59, 4.45, 4.49, 3.50 -> mean 4.19
+Better model: Quadratic, because its mean RMSE is much lower. Resistance does not grow in a
+straight line with Froude number, so the bent line fits better.
+Caution: the row-based split can put experiments from the same hull in different folds,
+so these errors may look better than they would on a completely new hull.
+
+TASK 3 - Concrete strength (804 training rows, 201 test rows after removing duplicates)
+(a) Linear baseline mean CV RMSE = 10.20 MPa.
+(b) Top 3 settings (degree, alpha -> mean CV RMSE):
+    Rank 1: degree 3, alpha 0.1  -> 6.09 MPa
+    Rank 2: degree 3, alpha 0.01 -> 6.16 MPa
+    Rank 3: degree 3, alpha 1    -> 6.27 MPa
+(c) Refitted winner (degree 3, alpha 0.1) on the test set: RMSE = 6.52 MPa, MAE = 4.67 MPa.
+(d) Baseline CV RMSE 10.20 MPa vs tuned CV RMSE 6.09 MPa: the tuned model is about 4.11 MPa better (roughly 40% lower error).
+    Example degree-2 interaction term: Cement x Water (the effect of cement on strength depends on how much water is used).
+    Scaling belongs inside the pipeline because (1) the scaler is then fitted only on the training part of each fold,
+    so no information from the validation fold leaks in, and (2) polynomial features (squares, cubes, products)
+    have very different ranges and Ridge penalizes large coefficients, so the features must be on the same scale
+    after expansion. The same scaler is also applied automatically to the test rows.
